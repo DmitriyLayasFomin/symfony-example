@@ -1,0 +1,70 @@
+version: "3"
+services:
+
+  backend:
+    env_file: .env
+    build: ./docker/backend/
+    command: ["/usr/bin/supervisord", "-n"]
+    ports:
+      - 80:80
+      - 9000:9000
+    volumes:
+      - ./:${PROJECT_PATH}:cached
+      - ./docker/backend/nginx:/etc/nginx/conf.d:ro
+      - ./docker/backend/supervisor:/etc/supervisor/conf.d:ro
+    working_dir: ${PROJECT_PATH}
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  db:
+    image: mariadb
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/mysql/conf:/etc/mysql/conf.d
+      - ./docker/mysql:/var/lib/mysql
+    env_file: .env
+    environment:
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD}
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_ROOT_HOST: ${DB_HOST}
+
+  amqp:
+    image: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ./docker/backend/rabbitmq/rabbitmq-data:/var/lib/rabbitmq/mnesia
+      - ./docker/backend/rabbitmq/rabbitmq.config /etc/rabbitmq/rabbitmq.config
+      - ./docker/backend/rabbitmq/rabbit.json /etc/rabbitmq/rabbit.json
+
+  selenium:
+    volumes:
+      - /dev/shm:/dev/shm
+    image: selenium/standalone-chrome
+
+  elastic_search:
+    image: elasticsearch:7.14.0
+
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es02,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./docker/backend/elasticsearch/data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
