@@ -31,7 +31,10 @@ RUN apt-get update && apt-get install -y \
     nginx \
     git \
     wget \
-    supervisor
+    supervisor \
+    net-tools \
+    nmap
+
 
 
 RUN docker-php-ext-install mbstring
@@ -70,14 +73,6 @@ RUN docker-php-ext-enable pdo_mysql
 RUN docker-php-ext-enable mbstring
 RUN docker-php-ext-enable sockets
 
-RUN echo "xdebug.remote_enable=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-RUN echo "xdebug.remote_autostart=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-RUN echo "xdebug.default_enable=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-RUN echo "xdebug.remote_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-RUN echo "xdebug.remote_port=9000" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-RUN echo "xdebug.remote_connect_back=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-RUN echo "xdebug.profiler_enable=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-RUN echo "xdebug.remote_log=\"/tmp/xdebug.log\"" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 # configure opcache
 RUN echo "opcache.memory_consumption=128" >> /usr/local/etc/php/conf.d/opcache-recommended.ini
@@ -97,3 +92,5 @@ RUN cd /tmp \
 
 # clean image
 RUN apt-get clean
+EXPOSE 9000
+EXPOSE 9003

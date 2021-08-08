@@ -10,12 +10,12 @@ services:
     command: ["/usr/bin/supervisord", "-n"]
     ports:
       - 80:80
-      - 9000:9000
-      - 3306
     volumes:
       - ./:${PROJECT_PATH}:cached
       - ./docker/backend/nginx:/etc/nginx/conf.d:ro
       - ./docker/backend/supervisor:/etc/supervisor/conf.d:ro
+      - ./docker/backend/php/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ./docker/backend/php/php.ini:/usr/local/etc/php/php.ini
     working_dir: ${PROJECT_PATH}
     networks:
       - app-network
