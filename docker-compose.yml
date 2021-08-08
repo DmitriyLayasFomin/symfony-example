@@ -1,6 +1,9 @@
 version: "3"
-services:
+networks:
+  app-network:
+    driver: bridge
 
+services:
   backend:
     env_file: .env
     build: ./docker/backend/
@@ -8,11 +11,14 @@ services:
     ports:
       - 80:80
       - 9000:9000
+      - 3306
     volumes:
       - ./:${PROJECT_PATH}:cached
       - ./docker/backend/nginx:/etc/nginx/conf.d:ro
       - ./docker/backend/supervisor:/etc/supervisor/conf.d:ro
     working_dir: ${PROJECT_PATH}
+    networks:
+      - app-network
 
   mailhog:
     image: mailhog/mailhog
@@ -33,7 +39,8 @@ services:
       MARIADB_ROOT_PASSWORD: ${DB_PASSWORD}
       MARIADB_DATABASE: ${DB_NAME}
       MARIADB_USER: ${DB_USER}
-      MARIADB_ROOT_HOST: ${DB_HOST}
+    networks:
+      - app-network
 
   amqp:
     image: rabbitmq
@@ -41,18 +48,20 @@ services:
       - 5672:5672
       - 15672:15672
     volumes:
-      - ./docker/backend/rabbitmq/rabbitmq-data:/var/lib/rabbitmq/mnesia
-      - ./docker/backend/rabbitmq/rabbitmq.config /etc/rabbitmq/rabbitmq.config
-      - ./docker/backend/rabbitmq/rabbit.json /etc/rabbitmq/rabbit.json
+      - ./docker/backend/rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+      - ./docker/backend/rabbitmq/rabbit.json:/etc/rabbitmq/rabbit.json
+    networks:
+      - app-network
 
   selenium:
     volumes:
       - /dev/shm:/dev/shm
     image: selenium/standalone-chrome
+    networks:
+      - app-network
 
   elastic_search:
     image: elasticsearch:7.14.0
-
     environment:
       - node.name=es01
       - cluster.name=es-docker-cluster
@@ -68,3 +77,5 @@ services:
       - ./docker/backend/elasticsearch/data:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
+    networks:
+      - app-network

@@ -36,6 +36,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN docker-php-ext-install mbstring
 RUN docker-php-ext-install pdo_mysql
+RUN docker-php-ext-install mysqli
 RUN docker-php-ext-install pdo
 RUN docker-php-ext-install dom
 RUN docker-php-ext-install posix
@@ -46,6 +47,7 @@ RUN docker-php-ext-install gd
 RUN docker-php-ext-install session
 RUN docker-php-ext-install json
 RUN docker-php-ext-install ctype
+RUN docker-php-ext-install sockets
 
 
 # install xdebug
@@ -63,7 +65,10 @@ RUN docker-php-ext-enable posix
 RUN docker-php-ext-enable dom
 RUN docker-php-ext-enable pdo
 RUN docker-php-ext-enable pdo_mysql
+RUN docker-php-ext-enable mysqli
+RUN docker-php-ext-enable pdo_mysql
 RUN docker-php-ext-enable mbstring
+RUN docker-php-ext-enable sockets
 
 RUN echo "xdebug.remote_enable=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 RUN echo "xdebug.remote_autostart=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini

@@ -19,6 +19,7 @@
 .phpunit.result.cache
 ###< phpunit/phpunit ###
 /composer.lock
-/docker/mysql/*
-/docker/rabbitmq/*
+/docker/mysql/
+/docker/rabbitmq/
+docker/backend/rabbitmq
 .idea
